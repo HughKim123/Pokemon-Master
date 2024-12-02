@@ -46,3 +46,11 @@ void Skill::skilledit(string name, string type, int dmg, int max){
 }
 Pokemon::Pokemon(): name("None"), type("None"), maxhp(0) {}
 Pokemon::Pokemon(const string& name, const string& type, const int& hp): name(name), type(type), maxhp(hp) {}
+void Pokemon::showstats(){
+    cout << "Pokemon name: " << name << endl;
+    cout << "Pokemon type: " << type << endl;
+    cout << "Max HP: " << maxhp << endl;
+    for(int i=0 ; i<4; i++){
+        skills[i].display(i);
+    }
+}
