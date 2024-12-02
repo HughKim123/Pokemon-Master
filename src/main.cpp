@@ -44,3 +44,4 @@ void Skill::skilledit(string name, string type, int dmg, int max){
     skilldmg = dmg;
     maxtry = max;
 }
+Pokemon::Pokemon(): name("None"), type("None"), maxhp(0) {}
