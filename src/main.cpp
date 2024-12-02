@@ -30,3 +30,4 @@ class Pokemon{
     int maxhp;
     Skill skills[4];
 };
+Skill::Skill(): skillname("None"), skilltype("None"), skilldmg(0), maxtry(0) {}
