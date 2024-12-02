@@ -7,6 +7,8 @@ public:
     Skill();
     void skilledit(string name, string type, int dmg, int max);
     void display(int skillnum);
+    void trycount();
+    int gettry();
     int getdmg();
     string gettype();
 
@@ -15,6 +17,7 @@ protected:
     string skilltype;
     int skilldmg;
     int maxtry;
+    int lefttry;
 };
 
 class Pokemon
@@ -41,6 +44,8 @@ public:
     int skilldmg(int skillnum);
 
     string skilltype(int skillnum);
+
+    Skill getskill(int skillnum);
 
 private:
     string name;
@@ -101,51 +106,83 @@ Pokemon choosepokemon(int pokenum)
 
 int Effectiveness(const string &attackType, const string &defendType)
 {
+    char effect='e';
     // Super Effective (O): +5
     if (attackType == "Ground" && defendType == "Electric")
-        return 5;
+        effect = 's';
     if (attackType == "Ground" && defendType == "Fire")
-        return 5;
+        effect = 's';
     if (attackType == "Water" && defendType == "Fire")
-        return 5;
+        effect = 's';
     if (attackType == "Water" && defendType == "Ground")
-        return 5;
+        effect = 's';
     if (attackType == "Grass" && defendType == "Water")
-        return 5;
+        effect = 's';
     if (attackType == "Fire" && defendType == "Grass")
-        return 5;
+        effect = 's';
     if (attackType == "Electric" && defendType == "Water")
-        return 5;
+        effect = 's';
 
     // Not Very Effective (X): -3
     if (attackType == "Electric" && defendType == "Ground")
-        return -3;
+        effect = 'n';
     if (attackType == "Electric" && defendType == "Electric")
-        return -3;
+        effect = 'n';
     if (attackType == "Electric" && defendType == "Grass")
-        return -3;
+        effect = 'n';
     if (attackType == "Water" && defendType == "Grass")
-        return -3;
+        effect = 'n';
     if (attackType == "Water" && defendType == "Water")
-        return -3;
+        effect = 'n';
     if (attackType == "Grass" && defendType == "Fire")
-        return -3;
+        effect = 'n';
     if (attackType == "Grass" && defendType == "Ground")
-        return -3;
+        effect = 'n';
     if (attackType == "Grass" && defendType == "Grass")
-        return -3;
+        effect = 'n';
     if (attackType == "Ground" && defendType == "Grass")
-        return -3;
+        effect = 'n';
     if (attackType == "Fire" && defendType == "Fire")
-        return -3;
+        effect = 'n';
     if (attackType == "Fire" && defendType == "Water")
-        return -3;
+        effect = 'n';
 
-    // Effective (-): 0
-    return 0;
+    if (effect == 'e')
+    {
+        cout << "It was effective.";
+        return 0;
+    }
+    else if (effect == 's')
+    {
+        cout << "It was super effective.";
+        return 5;
+    }
+    else if (effect == 'n')
+    {
+        cout << "It was not very effective.";
+        return -3;
+    }
 }
 
-
+void Battle(Pokemon &p1, Pokemon &p2)
+{
+    int currentturn = 0;
+    while (p1.getHP() > 0 && p2.getHP() > 0)
+    {
+        if (currentturn == 0)
+        {
+            int skillnum, dmg;
+            cout << "“Choose a skill (0~3): ";
+            cin >> skillnum;
+            if (p1.getskill(skillnum).gettry() > 0)
+            {
+                p1.getskill(skillnum).trycount();
+                dmg = p1.skilldmg(skillnum) + Effectiveness(p1.skilltype(skillnum), p2.getType());
+                p2.reduceHp(dmg);
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -167,7 +204,7 @@ int main()
     }
 }
 
-Skill::Skill() : skillname("None"), skilltype("None"), skilldmg(0), maxtry(0) {}
+Skill::Skill() : skillname("None"), skilltype("None"), skilldmg(0), maxtry(0), lefttry(0) {}
 void Skill::display(int skillnum)
 {
     cout << "-Skill " << skillnum << ':' << endl;
@@ -183,11 +220,22 @@ void Skill::skilledit(string name, string type, int dmg, int max)
     skilltype = type;
     skilldmg = dmg;
     maxtry = max;
+    lefttry = max;
+}
+
+void Skill::trycount()
+{
+    lefttry -= 1;
 }
 
 int Skill::getdmg()
 {
     return skilldmg;
+}
+
+int Skill::gettry()
+{
+    return lefttry;
 }
 
 string Skill::gettype()
@@ -239,4 +287,9 @@ int Pokemon::skilldmg(int skillnum)
 string Pokemon::skilltype(int skillnum)
 {
     return skills[skillnum].gettype();
+}
+
+Skill Pokemon::getskill(int skillnum)
+{
+    return skills[skillnum];
 }
