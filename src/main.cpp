@@ -38,3 +38,9 @@ void Skill::display(int skillnum){
     cout << "\t-Damage: " << skilldmg << endl;
     cout << "\t-MaxTry: " << maxtry << endl;
 }
+void Skill::skilledit(string name, string type, int dmg, int max){
+    skillname = name;
+    skilltype = type;
+    skilldmg = dmg;
+    maxtry = max;
+}
