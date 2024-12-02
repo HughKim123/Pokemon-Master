@@ -31,3 +31,10 @@ class Pokemon{
     Skill skills[4];
 };
 Skill::Skill(): skillname("None"), skilltype("None"), skilldmg(0), maxtry(0) {}
+void Skill::display(int skillnum){
+    cout << "-Skill " << skillnum << ':' << endl;
+    cout << "\t-Name: " << skillname << endl;
+    cout << "\t-Skill Type: " << skilltype << endl;
+    cout << "\t-Damage: " << skilldmg << endl;
+    cout << "\t-MaxTry: " << maxtry << endl;
+}
