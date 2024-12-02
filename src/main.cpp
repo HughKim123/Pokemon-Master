@@ -13,6 +13,7 @@ class Skill{
     int skilldmg;
     int maxtry;
 };
+
 class Pokemon{
     public:
     Pokemon(const string& name, const string& type, const int& hp);
@@ -30,6 +31,50 @@ class Pokemon{
     int maxhp;
     Skill skills[4];
 };
+
+Pokemon choosepokemon(int pokenum){
+    if (pokenum == 0){
+        Pokemon pikachu("Pikachu", "Electric", 35);
+        pikachu.setskill(0, "Tackle", "Normal", 4, 5);
+        pikachu.setskill(1, "Grass Knot", "Grass", 8, 5);
+        pikachu.setskill(2, "Thunderbolt", "Electric", 10, 5);
+        pikachu.setskill(3, "Megabolt", "Electric", 15, 3);
+        return pikachu;
+    }
+    else if(pokenum == 1){
+        Pokemon dratini("Dratini", "Water", 41);
+        dratini.setskill(0, "Wrap", "Normal", 4, 10);
+        dratini.setskill(1, "Aqua Tail", "Water", 3, 5);
+        dratini.setskill(2, "Water Pulse", "Water", 13, 2);
+        dratini.setskill(3, "Hyper Beam", "Normal", 20, 1);
+        return dratini;
+    }
+    else if (pokenum == 2){
+        Pokemon charmander("Charmander", "Fire", 39);
+        charmander.setskill(0, "Tackle", "Normal", 4, 5);
+        charmander.setskill(1, "Flamethrower", "Fire", 11, 5);
+        charmander.setskill(2, "Dig", "Ground", 7, 5);
+        charmander.setskill(3, "Heat Wave", "Fire", 14, 5);
+        return charmander;
+    }
+    else if (pokenum ==3){
+        Pokemon eevee("Eevee", "Normal", 55);
+        eevee.setskill(0, "Tackle", "Normal", 4, 5);
+        eevee.setskill(1, "Sand Attack", "Ground", 8, 3);
+        eevee.setskill(2, "Bite", "Normal", 12, 3);
+        eevee.setskill(3, "Rain Dance", "Water", 15, 1);
+        return eevee;
+    }
+    else if (pokenum == 4){
+        Pokemon palkia("Palkia", "Water", 90);
+        palkia.setskill(0, "Hydro Pump", "Water", 12, 10);
+        palkia.setskill(1, "Earth Power", "Ground", 15, 10);
+        palkia.setskill(2, "Surf", "Water", 13, 10);
+        palkia.setskill(3, "Spatial Rend", "Normal", 30, 10);
+        return palkia;
+    }
+}
+
 Skill::Skill(): skillname("None"), skilltype("None"), skilldmg(0), maxtry(0) {}
 void Skill::display(int skillnum){
     cout << "-Skill " << skillnum << ':' << endl;
