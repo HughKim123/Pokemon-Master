@@ -75,6 +75,25 @@ Pokemon choosepokemon(int pokenum){
     }
 }
 
+int main(){
+    int pokenum[2];
+    Pokemon pokemon[2];
+    for(int i=0; i<2; i++){
+        cout << "Choose a Pokemon(0~4): ";
+        cin >> pokenum[i];
+    }
+    while(pokenum[1]==pokenum[0]){
+        cout << "You have to choose Pokemons different from each other.";
+        cin >> pokenum[1];
+    }
+    for(int i=0; i<2; i++){
+        pokemon[i] = choosepokemon(pokenum[i]);
+    }
+
+
+}
+
+
 Skill::Skill(): skillname("None"), skilltype("None"), skilldmg(0), maxtry(0) {}
 void Skill::display(int skillnum){
     cout << "-Skill " << skillnum << ':' << endl;
@@ -83,14 +102,18 @@ void Skill::display(int skillnum){
     cout << "\t-Damage: " << skilldmg << endl;
     cout << "\t-MaxTry: " << maxtry << endl;
 }
+
 void Skill::skilledit(string name, string type, int dmg, int max){
     skillname = name;
     skilltype = type;
     skilldmg = dmg;
     maxtry = max;
 }
+
 Pokemon::Pokemon(): name("None"), type("None"), maxhp(0) {}
+
 Pokemon::Pokemon(const string& name, const string& type, const int& hp): name(name), type(type), maxhp(hp) {}
+
 void Pokemon::showstats(){
     cout << "Pokemon name: " << name << endl;
     cout << "Pokemon type: " << type << endl;
