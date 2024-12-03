@@ -59,7 +59,7 @@ Pokemon choosepokemon(int pokenum);
 
 int Effectiveness(const string &attackType, const string &defendType);
 
-void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn);
+void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn, const string &p1lastskillname, const string &p2lastskillname, int effect);
 
 void Battle(Pokemon &p1, Pokemon &p2);
 
@@ -250,24 +250,31 @@ int Effectiveness(const string &attackType, const string &defendType)
         (attackType == "Fire" && defendType == "Grass") ||
         (attackType == "Electric" && defendType == "Water"))
     {
+        cout << "It was Super effective." << endl;
         return 5; // Super effective
     }
 
     // Not Very Effective (X): -3
-    if ((attackType == "Electric" && (defendType == "Ground" || defendType == "Electric" || defendType == "Grass")) ||
+    else if ((attackType == "Electric" && (defendType == "Ground" || defendType == "Electric" || defendType == "Grass")) ||
         (attackType == "Water" && (defendType == "Grass" || defendType == "Water")) ||
         (attackType == "Grass" && (defendType == "Fire" || defendType == "Ground" || defendType == "Grass")) ||
         (attackType == "Ground" && defendType == "Grass") ||
         (attackType == "Fire" && (defendType == "Fire" || defendType == "Water")))
     {
+        cout << "It was not very effective." << endl;
         return -3; // Not very effective
     }
 
     // Effective (-): 0
-    return 0;
+    else
+    {
+        cout << "It was effective." << endl;
+        return 0;
+    }
+    
 }
 
-void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn, const string &lastskillname, int effect)
+void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn, const string &p1lastskillname, const string &p2lastskillname, int p1effect, int p2effect)
 {
     const int columnWidth = 30;
 
@@ -291,31 +298,34 @@ void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn, const string &lastsk
 
     // 최신 스킬 정보 출력
     cout << "| Latest Skill: " << setw(columnWidth - 15)
-         << ((!p1Turn && effect != -999) ? lastskillname : "-")
+         << p1lastskillname
          << "| Latest Skill: " << setw(columnWidth - 15)
-         << ((p1Turn && effect != -999) ? lastskillname : "-")
+         << p2lastskillname
          << "|" << endl;
 
     // 효과 출력 (효과가 있을 때만 출력)
 
-    string effectText;
-    if (effect == -999)
-        effectText = " ";
-    else if (effect == 5)
-        effectText = "It was super effective.";
-    else if (effect == -3)
-        effectText = "It was not very effective.";
+    string p1effectText, p2effectText;
+    if (p1effect == -999)
+        p1effectText = " ";
+    else if (p1effect == 5)
+        p1effectText = "It was super effective.";
+    else if (p1effect == -3)
+        p1effectText = "It was not very effective.";
     else
-        effectText = "It was effective.";
+        p1effectText = "It was effective.";
 
-    if (p1Turn)
-    {
-        cout << left << setw(columnWidth + 1) << "|" << "| " << setw(columnWidth - 1) << effectText << "|" << endl;
-    }
+    if (p2effect == -999)
+        p2effectText = " ";
+    else if (p2effect == 5)
+        p2effectText = "It was super effective.";
+    else if (p2effect == -3)
+        p2effectText = "It was not very effective.";
     else
-    {
-        cout << "| " << setw(columnWidth - 1) << effectText << "|" << right << setw(columnWidth + 1) << "|" << endl;
-    }
+        p2effectText = "It was effective.";
+
+    cout << "| " << left << setw(columnWidth - 1) << p1effectText << "| " << setw(columnWidth - 1) << p2effectText << "|" << endl;
+
 
     cout << "+------------------------------+------------------------------+" << endl;
 
@@ -343,54 +353,64 @@ void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn, const string &lastsk
 void Battle(Pokemon &p1, Pokemon &p2)
 {
     bool p1turn = true;
-    int effect = -999; // 효과 없음 상태 초기화
-    string lastskillname = "-";
+    int p1effect = -999;
+    int p2effect = -999;
+    // 효과 없음 상태 초기화
+    string p1lastskillname = "-";
+    string p2lastskillname = "-";
     // 첫 번째 배틀 페이지 출력 (효과 없음)
     while (p1.getHP() > 0 && p2.getHP() > 0)
     {
         if (p1turn)
         {
-            PrintBattlePage(p1, p2, p1turn, lastskillname, effect);
+            PrintBattlePage(p1, p2, p1turn, p1lastskillname, p2lastskillname, p1effect, p2effect);
             int skillnum, dmg;
             cout << "Choose a skill (0~3): ";
             cin >> skillnum;
             Skill &chosenskill = p1.getskill(skillnum);
 
-            if (chosenskill.gettry() <= 0){
+            if (chosenskill.gettry() <= 0)
+            {
                 cout << p1.getName() << " failed to perform " << chosenskill.getname() << endl;
+                p1turn = false;
                 continue;
             }
 
             chosenskill.trycount();
-            effect = Effectiveness(chosenskill.gettype(), p2.getType());
-            dmg = chosenskill.getdmg() + effect;
+            p1effect = Effectiveness(chosenskill.gettype(), p2.getType());
+            dmg = chosenskill.getdmg() + p1effect;
             p2.reduceHp(dmg);
 
-            lastskillname = chosenskill.getname();
+            p1lastskillname = chosenskill.getname();
             p1turn = false;
         }
         else
         {
-            PrintBattlePage(p1, p2, p1turn, lastskillname, effect);
+            PrintBattlePage(p1, p2, p1turn, p1lastskillname, p2lastskillname, p1effect, p2effect);
             int skillnum, dmg;
             cout << "Choose a skill (0~3): ";
             cin >> skillnum;
             Skill &chosenskill = p2.getskill(skillnum);
 
-            if (chosenskill.gettry() <= 0){
+            if (chosenskill.gettry() <= 0)
+            {
                 cout << p2.getName() << " failed to perform " << chosenskill.getname() << endl;
+                p1turn = true;
                 continue;
             }
-                
 
             chosenskill.trycount();
-            effect = Effectiveness(chosenskill.gettype(), p1.getType());
-            dmg = chosenskill.getdmg() + effect;
+            p2effect = Effectiveness(chosenskill.gettype(), p1.getType());
+            dmg = chosenskill.getdmg() + p2effect;
             p1.reduceHp(dmg);
-            lastskillname = chosenskill.getname();
+            p2lastskillname = chosenskill.getname();
             p1turn = true;
         }
 
         // 매 턴 이후 배틀 페이지 출력
     }
+    if (p1.getHP() <= 0)
+        cout << "Match Result: " << p2.getName() << " defeats " << p1.getName();
+    else
+        cout << "Match Result: " << p1.getName() << " defeats " << p2.getName();
 }
