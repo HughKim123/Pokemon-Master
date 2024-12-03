@@ -29,10 +29,7 @@ public:
     Pokemon(const string &name, const string &type, const int &hp);
     Pokemon();
 
-    void setskill(int skillnum, string name, string type, int dmg, int max)
-    {
-        skills[skillnum].skilledit(name, type, dmg, max);
-    }
+    void setskill(int skillnum, string name, string type, int dmg, int max);
 
     void showstats();
 
@@ -57,6 +54,141 @@ private:
     int hp;
     Skill skills[4];
 };
+
+Pokemon choosepokemon(int pokenum);
+
+int Effectiveness(const string &attackType, const string &defendType);
+
+void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn);
+
+void Battle(Pokemon &p1, Pokemon &p2);
+
+int main()
+{
+    int pokenum[2];
+    Pokemon pokemon[2];
+    for (int i = 0; i < 2; i++)
+    {
+        cout << "Choose a Pokemon(0~4): ";
+        cin >> pokenum[i];
+    }
+    while (pokenum[1] == pokenum[0])
+    {
+        cout << "You have to choose Pokemons different from each other.\nChoose a Pokemon(0~4): ";
+        cin >> pokenum[1];
+    }
+    for (int i = 0; i < 2; i++)
+    {
+        pokemon[i] = choosepokemon(pokenum[i]);
+    }
+    Battle(pokemon[0], pokemon[1]);
+    return 0;
+}
+
+Skill::Skill() : skillname(""), skilltype(""), skilldmg(0), maxtry(0), lefttry(0) {}
+void Skill::display(int skillnum)
+{
+    cout << "-Skill " << skillnum << ':' << endl;
+    cout << "\t-Name: " << skillname << endl;
+    cout << "\t-Skill Type: " << skilltype << endl;
+    cout << "\t-Damage: " << skilldmg << endl;
+    cout << "\t-MaxTry: " << maxtry << endl;
+}
+
+void Skill::skilledit(string name, string type, int dmg, int max)
+{
+    skillname = name;
+    skilltype = type;
+    skilldmg = dmg;
+    maxtry = max;
+    lefttry = max;
+}
+
+void Skill::trycount()
+{
+    lefttry -= 1;
+}
+
+int Skill::getdmg()
+{
+    return skilldmg;
+}
+
+int Skill::gettry()
+{
+    return lefttry;
+}
+
+int Skill::getmaxtry()
+{
+    return maxtry;
+}
+
+string Skill::gettype()
+{
+    return skilltype;
+}
+
+string Skill::getname()
+{
+    return skillname;
+}
+
+Pokemon::Pokemon() : name(""), type(""), maxhp(0), hp(0) {}
+
+Pokemon::Pokemon(const string &name, const string &type, const int &hp) : name(name), type(type), maxhp(hp), hp(hp) {}
+
+void Pokemon::setskill(int skillnum, string name, string type, int dmg, int max)
+{
+    skills[skillnum].skilledit(name, type, dmg, max);
+}
+
+void Pokemon::showstats()
+{
+    cout << "Pokemon name: " << name << endl;
+    cout << "Pokemon type: " << type << endl;
+    cout << "Max HP: " << maxhp << endl;
+    for (int i = 0; i < 4; i++)
+    {
+        skills[i].display(i);
+    }
+}
+
+int Pokemon::getHP()
+{
+    return hp;
+}
+
+string Pokemon::getName()
+{
+    return name;
+}
+
+string Pokemon::getType()
+{
+    return type;
+}
+void Pokemon::reduceHp(int dmg)
+{
+    hp -= dmg;
+    if (hp < 0)
+        hp = 0;
+}
+
+int Pokemon::skilldmg(int skillnum)
+{
+    return skills[skillnum].getdmg();
+}
+
+string Pokemon::skilltype(int skillnum)
+{
+    return skills[skillnum].gettype();
+}
+
+Skill &Pokemon::getskill(int skillnum)
+{
+    return skills[skillnum];
+}
 
 Pokemon choosepokemon(int pokenum)
 {
@@ -135,109 +267,63 @@ int Effectiveness(const string &attackType, const string &defendType)
     return 0;
 }
 
-void Battle(Pokemon &p1, Pokemon &p2)
-{
-    bool p1turn = true;
-    PrintBattlePage(p1, p2, p1turn);
-    while (p1.getHP() > 0 && p2.getHP() > 0)
-    {
-        if (p1turn)
-        {
-            int skillnum, dmg, effect;
-            cout << "“Choose a skill (0~3): ";
-            cin >> skillnum;
-            while (true)
-            {
-                if (p1.getskill(skillnum).gettry() > 0)
-                    break;
-                cout << "Pokémon-name failed to perform " << p1.getskill(skillnum).getname();
-                cin >> skillnum;
-            }
-            if (p1.getskill(skillnum).gettry() > 0)
-            {
-                p1.getskill(skillnum).trycount();
-                effect = Effectiveness(p1.skilltype(skillnum), p2.getType());
-                dmg = p1.skilldmg(skillnum) + effect;
-                if (effect == 5)
-                {
-                    cout << "It was super effective." << endl;
-                }
-                else if (effect == -3)
-                {
-                    cout << "It was not very effective." << endl;
-                }
-                else
-                {
-                    cout << "It was effective." << endl;
-                }
-                p2.reduceHp(dmg);
-                if (p2.getHP() <= 0)
-                    break;
-            }
-            p1turn = false;
-        }
-        if (!p1turn)
-        {
-            int skillnum, dmg, effect;
-            cout << "“Choose a skill (0~3): ";
-            cin >> skillnum;
-            while (true)
-            {
-                if (p2.getskill(skillnum).gettry() > 0)
-                    break;
-                cout << "Pokémon-name failed to perform " << p2.getskill(skillnum).getname();
-                cin >> skillnum;
-            }
-            if (p2.getskill(skillnum).gettry() > 0)
-            {
-                p2.getskill(skillnum).trycount();
-                effect = Effectiveness(p2.skilltype(skillnum), p1.getType());
-                dmg = p2.skilldmg(skillnum) + effect;
-                if (effect == 5)
-                {
-                    cout << "It was super effective." << endl;
-                }
-                else if (effect == -3)
-                {
-                    cout << "It was not very effective." << endl;
-                }
-                else
-                {
-                    cout << "It was effective." << endl;
-                }
-                p1.reduceHp(dmg);
-                if (p1.getHP() <= 0)
-                    break;
-            }
-            p1turn = true;
-        }
-        PrintBattlePage(p1, p2, p1turn);
-    }
-}
-
-void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn)
+void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn, const string &lastskillname, int effect)
 {
     const int columnWidth = 30;
 
+    // 헤더와 기본 정보 출력
     cout << "+------------------------------+------------------------------+" << endl;
-    cout << "| " << left << setw(columnWidth - 2)
+    cout << "| 2024148072 OOP Computer Science Pokemon-Master              |" << endl;
+    cout << "+------------------------------+------------------------------+" << endl;
+    cout << "| " << left << setw(columnWidth - 1)
          << (p1Turn ? p1.getName() + " (*)" : p1.getName())
-         << "| " << left << setw(columnWidth - 2)
+         << "| " << left << setw(columnWidth - 1)
          << (!p1Turn ? p2.getName() + " (*)" : p2.getName())
          << "|" << endl;
 
-    cout << "| Type: " << setw(columnWidth - 9) << p1.getType()
-         << "| Type: " << setw(columnWidth - 9) << p2.getType()
+    cout << "| Type: " << setw(columnWidth - 7) << p1.getType()
+         << "| Type: " << setw(columnWidth - 7) << p2.getType()
          << "|" << endl;
-    cout << "| HP: " << setw(columnWidth - 6) << p1.getHP()
-         << "| HP: " << setw(columnWidth - 6) << p2.getHP()
+    cout << "| HP: " << setw(columnWidth - 5) << p1.getHP()
+         << "| HP: " << setw(columnWidth - 5) << p2.getHP()
          << "|" << endl;
     cout << "+------------------------------+------------------------------+" << endl;
 
+    // 최신 스킬 정보 출력
+    cout << "| Latest Skill: " << setw(columnWidth - 15)
+         << ((!p1Turn && effect != -999) ? lastskillname : "-")
+         << "| Latest Skill: " << setw(columnWidth - 15)
+         << ((p1Turn && effect != -999) ? lastskillname : "-")
+         << "|" << endl;
+
+    // 효과 출력 (효과가 있을 때만 출력)
+
+    string effectText;
+    if (effect == -999)
+        effectText = " ";
+    else if (effect == 5)
+        effectText = "It was super effective.";
+    else if (effect == -3)
+        effectText = "It was not very effective.";
+    else
+        effectText = "It was effective.";
+
+    if (p1Turn)
+    {
+        cout << left << setw(columnWidth + 1) << "|" << "| " << setw(columnWidth - 1) << effectText << "|" << endl;
+    }
+    else
+    {
+        cout << "| " << setw(columnWidth - 1) << effectText << "|" << right << setw(columnWidth + 1) << "|" << endl;
+    }
+
+    cout << "+------------------------------+------------------------------+" << endl;
+
+    // 스킬 목록 출력
     for (int i = 0; i < 4; i++)
     {
-        cout << "| (" << i << ") " << setw(columnWidth - 6) << p1.getskill(i).getname()
-             << "| (" << i << ") " << setw(columnWidth - 6) << p2.getskill(i).getname()
+        cout << "| (" << i << ") " << setw(columnWidth - 5) << p1.getskill(i).getname()
+             << "| (" << i << ") " << setw(columnWidth - 5) << p2.getskill(i).getname()
              << "|" << endl;
         cout << "|     - Type: " << setw(columnWidth - 13) << p1.getskill(i).gettype()
              << "|     - Type: " << setw(columnWidth - 13) << p2.getskill(i).gettype()
@@ -254,123 +340,57 @@ void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn)
     cout << "+------------------------------+------------------------------+" << endl;
 }
 
-int main()
+void Battle(Pokemon &p1, Pokemon &p2)
 {
-    int pokenum[2];
-    Pokemon pokemon[2];
-    for (int i = 0; i < 2; i++)
+    bool p1turn = true;
+    int effect = -999; // 효과 없음 상태 초기화
+    string lastskillname = "-";
+    // 첫 번째 배틀 페이지 출력 (효과 없음)
+    while (p1.getHP() > 0 && p2.getHP() > 0)
     {
-        cout << "Choose a Pokemon(0~4): ";
-        cin >> pokenum[i];
+        if (p1turn)
+        {
+            PrintBattlePage(p1, p2, p1turn, lastskillname, effect);
+            int skillnum, dmg;
+            cout << "Choose a skill (0~3): ";
+            cin >> skillnum;
+            Skill &chosenskill = p1.getskill(skillnum);
+
+            if (chosenskill.gettry() <= 0){
+                cout << p1.getName() << " failed to perform " << chosenskill.getname() << endl;
+                continue;
+            }
+
+            chosenskill.trycount();
+            effect = Effectiveness(chosenskill.gettype(), p2.getType());
+            dmg = chosenskill.getdmg() + effect;
+            p2.reduceHp(dmg);
+
+            lastskillname = chosenskill.getname();
+            p1turn = false;
+        }
+        else
+        {
+            PrintBattlePage(p1, p2, p1turn, lastskillname, effect);
+            int skillnum, dmg;
+            cout << "Choose a skill (0~3): ";
+            cin >> skillnum;
+            Skill &chosenskill = p2.getskill(skillnum);
+
+            if (chosenskill.gettry() <= 0){
+                cout << p2.getName() << " failed to perform " << chosenskill.getname() << endl;
+                continue;
+            }
+                
+
+            chosenskill.trycount();
+            effect = Effectiveness(chosenskill.gettype(), p1.getType());
+            dmg = chosenskill.getdmg() + effect;
+            p1.reduceHp(dmg);
+            lastskillname = chosenskill.getname();
+            p1turn = true;
+        }
+
+        // 매 턴 이후 배틀 페이지 출력
     }
-    while (pokenum[1] == pokenum[0])
-    {
-        cout << "You have to choose Pokemons different from each other.";
-        cin >> pokenum[1];
-    }
-    for (int i = 0; i < 2; i++)
-    {
-        pokemon[i] = choosepokemon(pokenum[i]);
-    }
-    Battle(pokemon[0], pokemon[1]);
-}
-
-Skill::Skill() : skillname("None"), skilltype("None"), skilldmg(0), maxtry(0), lefttry(0) {}
-void Skill::display(int skillnum)
-{
-    cout << "-Skill " << skillnum << ':' << endl;
-    cout << "\t-Name: " << skillname << endl;
-    cout << "\t-Skill Type: " << skilltype << endl;
-    cout << "\t-Damage: " << skilldmg << endl;
-    cout << "\t-MaxTry: " << maxtry << endl;
-}
-
-void Skill::skilledit(string name, string type, int dmg, int max)
-{
-    skillname = name;
-    skilltype = type;
-    skilldmg = dmg;
-    maxtry = max;
-    lefttry = max;
-}
-
-void Skill::trycount()
-{
-    lefttry -= 1;
-}
-
-int Skill::getdmg()
-{
-    return skilldmg;
-}
-
-int Skill::gettry()
-{
-    return lefttry;
-}
-
-int Skill::getmaxtry()
-{
-    return maxtry;
-}
-
-string Skill::gettype()
-{
-    return skilltype;
-}
-
-string Skill::getname()
-{
-    return skillname;
-}
-
-Pokemon::Pokemon() : name("None"), type("None"), maxhp(0), hp(0) {}
-
-Pokemon::Pokemon(const string &name, const string &type, const int &hp) : name(name), type(type), maxhp(hp), hp(hp) {}
-
-void Pokemon::showstats()
-{
-    cout << "Pokemon name: " << name << endl;
-    cout << "Pokemon type: " << type << endl;
-    cout << "Max HP: " << maxhp << endl;
-    for (int i = 0; i < 4; i++)
-    {
-        skills[i].display(i);
-    }
-}
-
-int Pokemon::getHP()
-{
-    return hp;
-}
-
-string Pokemon::getName()
-{
-    return name;
-}
-
-string Pokemon::getType()
-{
-    return type;
-}
-void Pokemon::reduceHp(int dmg)
-{
-    hp -= dmg;
-    if (hp < 0)
-        hp = 0;
-}
-
-int Pokemon::skilldmg(int skillnum)
-{
-    return skills[skillnum].getdmg();
-}
-
-string Pokemon::skilltype(int skillnum)
-{
-    return skills[skillnum].gettype();
-}
-
-Skill &Pokemon::getskill(int skillnum)
-{
-    return skills[skillnum];
 }
