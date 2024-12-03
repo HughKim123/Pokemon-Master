@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <iomanip>
 using namespace std;
 class Skill
 {
@@ -9,6 +10,7 @@ public:
     void display(int skillnum);
     void trycount();
     int gettry();
+    int getmaxtry();
     int getdmg();
     string gettype();
     string getname();
@@ -135,10 +137,11 @@ int Effectiveness(const string &attackType, const string &defendType)
 
 void Battle(Pokemon &p1, Pokemon &p2)
 {
-    int currentturn = 0;
+    bool p1turn = true;
+    PrintBattlePage(p1, p2, p1turn);
     while (p1.getHP() > 0 && p2.getHP() > 0)
     {
-        if (currentturn == 0)
+        if (p1turn)
         {
             int skillnum, dmg, effect;
             cout << "“Choose a skill (0~3): ";
@@ -171,13 +174,20 @@ void Battle(Pokemon &p1, Pokemon &p2)
                 if (p2.getHP() <= 0)
                     break;
             }
-            currentturn = 1;
+            p1turn = false;
         }
-        if (currentturn == 1)
+        if (!p1turn)
         {
             int skillnum, dmg, effect;
             cout << "“Choose a skill (0~3): ";
             cin >> skillnum;
+            while (true)
+            {
+                if (p2.getskill(skillnum).gettry() > 0)
+                    break;
+                cout << "Pokémon-name failed to perform " << p2.getskill(skillnum).getname();
+                cin >> skillnum;
+            }
             if (p2.getskill(skillnum).gettry() > 0)
             {
                 p2.getskill(skillnum).trycount();
@@ -199,9 +209,49 @@ void Battle(Pokemon &p1, Pokemon &p2)
                 if (p1.getHP() <= 0)
                     break;
             }
-            currentturn = 0;
+            p1turn = true;
         }
+        PrintBattlePage(p1, p2, p1turn);
     }
+}
+
+void PrintBattlePage(Pokemon &p1, Pokemon &p2, bool p1Turn)
+{
+    const int columnWidth = 30;
+
+    cout << "+------------------------------+------------------------------+" << endl;
+    cout << "| " << left << setw(columnWidth - 2)
+         << (p1Turn ? p1.getName() + " (*)" : p1.getName())
+         << "| " << left << setw(columnWidth - 2)
+         << (!p1Turn ? p2.getName() + " (*)" : p2.getName())
+         << "|" << endl;
+
+    cout << "| Type: " << setw(columnWidth - 9) << p1.getType()
+         << "| Type: " << setw(columnWidth - 9) << p2.getType()
+         << "|" << endl;
+    cout << "| HP: " << setw(columnWidth - 6) << p1.getHP()
+         << "| HP: " << setw(columnWidth - 6) << p2.getHP()
+         << "|" << endl;
+    cout << "+------------------------------+------------------------------+" << endl;
+
+    for (int i = 0; i < 4; i++)
+    {
+        cout << "| (" << i << ") " << setw(columnWidth - 6) << p1.getskill(i).getname()
+             << "| (" << i << ") " << setw(columnWidth - 6) << p2.getskill(i).getname()
+             << "|" << endl;
+        cout << "|     - Type: " << setw(columnWidth - 13) << p1.getskill(i).gettype()
+             << "|     - Type: " << setw(columnWidth - 13) << p2.getskill(i).gettype()
+             << "|" << endl;
+        cout << "|     - Damage: " << setw(columnWidth - 15) << p1.getskill(i).getdmg()
+             << "|     - Damage: " << setw(columnWidth - 15) << p2.getskill(i).getdmg()
+             << "|" << endl;
+        cout << "|     - Count: " << setw(columnWidth - 14)
+             << to_string(p1.getskill(i).gettry()) + "(" + to_string(p1.getskill(i).getmaxtry()) + ")"
+             << "|     - Count: " << setw(columnWidth - 14)
+             << to_string(p2.getskill(i).gettry()) + "(" + to_string(p2.getskill(i).getmaxtry()) + ")"
+             << "|" << endl;
+    }
+    cout << "+------------------------------+------------------------------+" << endl;
 }
 
 int main()
@@ -222,6 +272,7 @@ int main()
     {
         pokemon[i] = choosepokemon(pokenum[i]);
     }
+    Battle(pokemon[0], pokemon[1]);
 }
 
 Skill::Skill() : skillname("None"), skilltype("None"), skilldmg(0), maxtry(0), lefttry(0) {}
@@ -256,6 +307,11 @@ int Skill::getdmg()
 int Skill::gettry()
 {
     return lefttry;
+}
+
+int Skill::getmaxtry()
+{
+    return maxtry;
 }
 
 string Skill::gettype()
